@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:async';
@@ -51,7 +52,6 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
   String _city = "London";
 
   Weather _weatherData = const Weather(
@@ -104,7 +104,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   List<Color> weatherColors(int time, String condition){
-    if (time > 19){
+    if (time >= 19 || time <= 4){
       return const [Colors.black87, Colors.black87];
     }else{
       if (_weatherData.condition == "Sunny") {
@@ -115,45 +115,48 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Color textColor(){
-    if (_weatherData.time > 19) return Colors.white;
+    if (_weatherData.time >= 19 || _weatherData.time <= 4) return Colors.white;
     return Colors.black87;
   }
 
-  ListTile eachTile(int index, BuildContext context){
-    if (_city == cities[index]){
+  ListTile eachTile(String currentCity, BuildContext context){
+    if (_city == currentCity){
       return ListTile(
-        trailing: const Icon(Icons.check, color: Colors.blueAccent,),
+        // trailing: const Icon(Icons.check, color: Colors.blueAccent,),
         onTap: (){
-          // changeCity(cities[index]);
           Navigator.pop(context);
         },
-        title: Text(
-          cities[index],
-          style: const TextStyle(
-              fontWeight: FontWeight.bold,
-              color: Colors.black87,
-              fontFamily: "Montserrat"
+        title: Center(
+          child: Text(
+            currentCity,
+            style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                color: Colors.black87,
+                fontFamily: "Montserrat"
+            ),
           ),
         ),
       );
     }
     return ListTile(
       onTap: (){
-        changeCity(cities[index]);
+        changeCity(currentCity);
         Navigator.pop(context);
       },
-      title: Text(
-        cities[index],
-        style: const TextStyle(
-            fontWeight: FontWeight.bold,
-            color: Colors.black87,
-            fontFamily: "Montserrat"
+      title: Center(
+        child: Text(
+          currentCity,
+          style: const TextStyle(
+              fontWeight: FontWeight.bold,
+              color: Colors.black87,
+              fontFamily: "Montserrat"
+          ),
         ),
       ),
 
     );
   }
-
+  
   @override
   Widget build(BuildContext context) {
     // This method is rerun every time setState is called, for instance as done
@@ -179,35 +182,65 @@ class _MyHomePageState extends State<MyHomePage> {
                 Icon(Icons.location_on, color: textColor(), size: 20,),
                 // const SizedBox(width: 15,),
                 TextButton(
-                  onPressed: () => showDialog<String>(
-                    context: context,
-                    builder: (BuildContext context) => SimpleDialog(
-                      // title: const Text('AlertDialog Title'),
-                      children: [
-                        Container(
+                  onPressed: () => {
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) => AlertDialog(
+                        // title: const Text('AlertDialog Title'),
+                        content: SizedBox(
                           height: 300,
-                          width: 400,
-                          child: ListView.separated(
-                            itemCount: cities.length,
-                            itemBuilder: (BuildContext context, int index){
-                              return eachTile(index, context);
-                            },
-                            separatorBuilder: (BuildContext context, int index) => const Divider(height: 0, thickness: 1,),
-                          ),
-                        ),
-                      ]
-                      // actions: <Widget>[
-                      //   TextButton(
-                      //     onPressed: () => Navigator.pop(context, 'Cancel'),
-                      //     child: const Text('Cancel'),
-                      //   ),
-                      //   TextButton(
-                      //     onPressed: () => Navigator.pop(context, 'OK'),
-                      //     child: const Text('OK'),
-                      //   ),
-                      // ],
+                          width: 500,
+                          child: Stack(
+                            children: [
+                              const Positioned(
+                                  top: 143,
+                                  child: Icon(Icons.arrow_right_alt)
+                              ),
+                              const Positioned(
+                                  top: 143,
+                                  right: 0,
+                                  child: Icon(Icons.done, size: 20, color: Colors.blue,)
+                              ),
+                              CarouselSlider(
+                                items: cities.map((city) {
+                                  return Builder(
+                                    builder: (BuildContext context) {
+                                      return Container(
+                                          width: MediaQuery.of(context).size.width,
+                                          height: 60,
+                                          margin: const EdgeInsets.symmetric(horizontal: 5.0),
+                                          child: eachTile(city, context),
+                                      );
+                                    },
+                                  );
+                                }).toList(),
+                                // carouselController: controller,
+
+                                options: CarouselOptions(
+                                  height: 400,
+                                  aspectRatio: 1/9,
+                                  viewportFraction: 0.2,
+                                  initialPage: cities.indexOf(_city),
+                                  enableInfiniteScroll: true,
+                                  reverse: false,
+                                  autoPlay: false,
+                                  enlargeCenterPage: true,
+                                  onPageChanged: (index, reason) {
+                                    setState(() {
+                                      _city = cities[index];
+                                    });
+                                  },
+                                  enlargeStrategy: CenterPageEnlargeStrategy.scale,
+                                  scrollDirection: Axis.vertical,
+                                )
+                              )
+                            ],
+                          )
+                        )
+                      ),
                     ),
-                  ),
+                  },
+
                   child: Text(
                     _city,
                     style: TextStyle(
@@ -216,40 +249,6 @@ class _MyHomePageState extends State<MyHomePage> {
                     ),
                   ),
                 )
-                // DropdownButton(
-                //   value: _city,
-                //   // itemHeight: 25,
-                //   icon: const Icon(Icons.keyboard_arrow_down, size: 16,),
-                //   items: <String>['London', 'Kathmandu', 'Adelaide', 'Paris', 'Mumbai', 'New York', 'Boston']
-                //       .map<DropdownMenuItem<String>>((String value) {
-                //     return DropdownMenuItem<String>(
-                //       value: value,
-                //       child: Text(
-                //           value,
-                //           style: TextStyle(
-                //             fontFamily: "Montserrat",
-                //             color: textColor(),
-                //             fontWeight: FontWeight.bold
-                //           ),
-                //       ),
-                //     );
-                //   }).toList(),
-                //   onChanged: (String? newValue) {
-                //     changeCity(newValue!);
-                //   }
-                // )
-                // TextButton(
-                //     onPressed: () => {},
-                //     child: Text(
-                //       widget.title,
-                //       style: const TextStyle(
-                //           fontSize: 18,
-                //           color: Colors.black54,
-                //           fontFamily: "Montserrat"
-                //       ),
-                //     ),
-                // )
-
               ],
             ),
           ],
@@ -343,7 +342,7 @@ class WeatherImage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // print(time);
-    if(time > 19){
+    if(time > 19 || time < 4){
       return Image.asset("assets/moon_cloud.png", width: 175,);
     }
     switch(code){
