@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "915124616080",
+    "project_id": "pre-weather-notifications",
+    "storage_bucket": "pre-weather-notifications.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:915124616080:android:ac83baa437ac87eeca5115",
+        "android_client_info": {
+          "package_name": "com.example.pre_weather_notification"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "915124616080-geoflg74jf127fbpvdbo8k55r30j57lk.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD5yFsFm_DbC1d0VUGkUypLuFe90vKYXR8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "915124616080-geoflg74jf127fbpvdbo8k55r30j57lk.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
